@@ -7,10 +7,10 @@ package aaf.fr.foundation
  */
 abstract class Endpoint	{
 	static auditable = true
-	
+
 	boolean active = false
 	boolean approved = false
-	
+
 	SamlURI binding
 	String location
 	String responseLocation
@@ -24,14 +24,30 @@ abstract class Endpoint	{
 
 	static constraints = {
 		binding(nullable: false)
-		location(nullable: false, url:true)
-		responseLocation(nullable: true, url:true)
+		location(nullable: false, validator: { val, _obj ->
+			try {
+				def proto = new java.net.URL(val).protocol;
+				proto == 'http' || proto == 'https'
+			} catch (java.net.MalformedURLException e) {
+				false
+			}
+		})
+
+		responseLocation(nullable: true, validator: { val, _obj ->
+			try {
+				def proto = new java.net.URL(val).protocol;
+				proto == 'http' || proto == 'https'
+			} catch (java.net.MalformedURLException e) {
+				false
+			}
+		})
+
 		dateCreated(nullable:true)
 		lastUpdated(nullable:true)
 	}
 
 	public String toString() {	"endpoint:[id:$id, location: $location]" }
-	
+
 	// This method must be overloaded by all subclasses
 	public boolean functioning() {
 		false
